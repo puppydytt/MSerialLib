@@ -13,6 +13,8 @@
 using namespace std;
 using namespace chrono;
 
+// add param namings
+
 namespace Serial {
 
     class SerialLib {
@@ -27,21 +29,29 @@ namespace Serial {
         bool block;
         string iFaceName;
 
+
     public:
-        SerialLib(string & iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr), sentByte(0), receivedByte(0),
-                                      block(false) {};
+        SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr), sentByte(0),
+                                                     receivedByte(0),
+                                                     block(false) {};
 
         bool openStream();
 
         void setControl(DWORD, BYTE, DWORD);
 
-        bool receiveData(string &);
+        /**
+         *
+         * @param timeout(ms) if passed 0 applies INFINITE waiting for method,
+         * @return
+         */
 
-        //add spawn threads
+        bool receiveData(string &, uint32_t);
+
+        //add serial port listener based on the recieve data function, make spining thread which shared mutexed area with signals, add logic for thread stop
 
         bool closeStream(const string &);
 
-        bool serialStreamDataWrite(unsigned char *, uint64_t);
+        bool write(unsigned char *, uint64_t);
 
         void serialStreamReceiveData();
     };
