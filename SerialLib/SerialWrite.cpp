@@ -31,7 +31,7 @@ namespace Serial {
         switch (WaitForSingleObject(osWrite.hEvent, 200)) {
             case WAIT_OBJECT_0:
                 //Gathering info on completed event
-                if(!GetOverlappedResult(stream, &osWrite, &messageLength, true)) {
+                if(!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
                     cerr << "Failed while retrieving overlapped results" << endl;
                     return false;
                 }
@@ -42,7 +42,6 @@ namespace Serial {
             default:
                 break;
         }
-
         return length == messageLength;
     }
 }

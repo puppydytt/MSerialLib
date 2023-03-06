@@ -8,6 +8,7 @@
 #include <chrono>
 #include <mutex>
 
+
 #define MAX_PORT 256
 
 using namespace std;
@@ -15,10 +16,18 @@ using namespace chrono;
 
 // add param namings
 
+
+
 namespace Serial {
+    enum signalState {
+        RUN = 0,
+        STOP,
+    };
 
     class SerialLib {
+
     protected:
+        void spin();
 
     private:
         HANDLE stream;
@@ -28,9 +37,12 @@ namespace Serial {
         char sentByte;
         bool block;
         string iFaceName;
+        thread th;
 
 
     public:
+        mutex m;
+        signalState signal;
         SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr), sentByte(0),
                                                      receivedByte(0),
                                                      block(false) {};
@@ -53,7 +65,10 @@ namespace Serial {
 
         bool write(unsigned char *, uint64_t);
 
-        void serialStreamReceiveData();
+        void startListening();
+
+        bool stopListening();
+
     };
 
 }

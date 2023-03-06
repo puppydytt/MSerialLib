@@ -41,26 +41,37 @@ public:
 
 };
 
-void menu(Atmega328P &a) {
+
+*/
+
+void menu(SerialLib &a) {
     while (true) {
+        unsigned char info[] = {'a', 'b', 'o', 'b', 'a', 's', 'u', 'c', 'k', 'm', 'y', 'd', 'i', 'c', 'k', 'p',
+                                'l',
+                                'e', 'a', 's', 'e'};
         int option = 0;
         cout << "Enter the option which should be processed:\n"
                 "1.\t Ping device with message\n"
-                "2.\t Program controlled device\n";
+                "2.\t Program controlled device\n" <<
+             "3.\t Kill the thread\n";
         cin >> option;
+        cout << option << endl;
         switch (option) {
             case 1:
-                a.SendInstruction();
+                cout << a.write(info, sizeof(info)) << endl;
                 break;
             case 2:
                 break;
+            case 3:
+                a.stopListening();
+                cout << "stopped" << endl;
+                break;
             default:
                 cerr << "Provided not supported instruction\n" << endl;
+                continue;
         }
     }
 }
-*/
-
 
 void scan(vector<string> &a) {
     char lpBuff[5000];
@@ -73,26 +84,27 @@ void scan(vector<string> &a) {
 
 // documenting the library, describe why synchronous-overlapped was selected instead of asynchronous
 
-
 int main() {
     vector<string> existingSerialPorts;
     scan(existingSerialPorts);
     string res;
-    for(auto &i : existingSerialPorts) {
+    for (auto &i: existingSerialPorts) {
         cout << i << endl;
     }
     SerialLib a(existingSerialPorts[0], 9600);
 
-    if(!a.openStream()) {
+    if (!a.openStream()) {
         cerr << "Failed to open I/O stream" << endl;
     }
 
-    unsigned char info[] = {'a', 'b', 'o', 'b', 'a', 's', 'u', 'c', 'k', 'm', 'y', 'd', 'i', 'c', 'k', 'p', 'l',
-                            'e', 'a', 's', 'e'};
-    cout << a.write(info, sizeof(info)) << endl;
 
-    a.receiveData(res, 0);
-    cout << res << endl;
+
+    /*a.receiveData(res, 0);
+    cout << res << endl;*/
+    a.startListening();
+
+    thread th1(menu, ref(a));
+    th1.join();
 
 
     //thread th1(menu, ref(c));
