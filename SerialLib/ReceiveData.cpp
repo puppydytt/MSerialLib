@@ -6,11 +6,13 @@ namespace Serial {
         char *buff(nullptr);
         DWORD bufferLength(0);
         DWORD bufferLLengthFromOverlapped(0);
+        //separate overlapped structure for operation. See Remarks there https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-overlapped
         OVERLAPPED overlappedRXEvent = {0};
         OVERLAPPED overlappedReadEvent = {0};
         COMSTAT portInfo = {0};
         DWORD nRead(0);
 
+        //init of overlapped structure
         memset(&overlappedRXEvent, 0, sizeof(overlappedRXEvent));
         memset(&overlappedReadEvent, 0, sizeof(overlappedReadEvent));
 
@@ -31,10 +33,12 @@ namespace Serial {
             return false;
         }
 
+
         //EV_RXCHAR indicates that character was placed to input buffer
         SetCommMask(stream, EV_RXCHAR);
         WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
 
+        cpy = overlappedRXEvent;
         //suspend execution till EV_RXCHAR will fire
         switch (WaitForSingleObject(overlappedRXEvent.hEvent, timeout == 0 ? INFINITE : timeout)) {
             case WAIT_OBJECT_0:

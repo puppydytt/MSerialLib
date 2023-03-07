@@ -54,8 +54,11 @@ void menu(SerialLib &a) {
                 "1.\t Ping device with message\n"
                 "2.\t Program controlled device\n" <<
              "3.\t Kill the thread\n";
-        cin >> option;
-        cout << option << endl;
+        if (!(cin >> option)) {
+            cin.clear();
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            cerr << "Invalid input. Try again.\n";
+        }
         switch (option) {
             case 1:
                 cout << a.write(info, sizeof(info)) << endl;
@@ -84,6 +87,10 @@ void scan(vector<string> &a) {
 
 // documenting the library, describe why synchronous-overlapped was selected instead of asynchronous
 
+void cb(const string &content) {
+    cout << "msg from call back: " << content << endl;
+}
+
 int main() {
     vector<string> existingSerialPorts;
     scan(existingSerialPorts);
@@ -97,11 +104,9 @@ int main() {
         cerr << "Failed to open I/O stream" << endl;
     }
 
-
-
     /*a.receiveData(res, 0);
     cout << res << endl;*/
-    a.startListening();
+    a.startListening(cb);
 
     thread th1(menu, ref(a));
     th1.join();

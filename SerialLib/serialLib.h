@@ -5,8 +5,7 @@
 #include <vector>
 #include <windows.h>
 #include <thread>
-#include <chrono>
-#include <mutex>
+#include <atomic>
 
 
 #define MAX_PORT 256
@@ -15,37 +14,24 @@ using namespace std;
 using namespace chrono;
 
 // add param namings
-
-
+typedef void(callBack)(const string&);
 
 namespace Serial {
-    enum signalState {
-        RUN = 0,
-        STOP,
-    };
-
     class SerialLib {
 
     protected:
-        void spin();
+        void spin(callBack);
 
     private:
         HANDLE stream;
         _DCB controlBlock{};
         COMMTIMEOUTS timeouts{};
-        char receivedByte;
-        char sentByte;
-        bool block;
         string iFaceName;
         thread th;
-
-
+        atomic<bool> listenerRunning;
+        OVERLAPPED cpy;
     public:
-        mutex m;
-        signalState signal;
-        SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr), sentByte(0),
-                                                     receivedByte(0),
-                                                     block(false) {};
+        SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr) {};
 
         bool openStream();
 
@@ -65,7 +51,7 @@ namespace Serial {
 
         bool write(unsigned char *, uint64_t);
 
-        void startListening();
+        bool startListening(callBack);
 
         bool stopListening();
 
