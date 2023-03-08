@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
-project(programmerInterface)
+project(TestForSerialLib)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(programmerInterface main.cpp SerialLib/driver.cpp SerialLib/ReceiveData.cpp SerialLib/SerialWrite.cpp SerialLib/listenCommPort.cpp)
+add_subdirectory(SerialLib)
+
+add_executable(wtf main.cpp)
+target_link_libraries(wtf MySerial)

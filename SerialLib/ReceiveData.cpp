@@ -1,5 +1,6 @@
 #include "serialLib.h"
 
+//make normal reception
 namespace Serial {
     bool SerialLib::receiveData(string &dst, uint32_t timeout) {
         DWORD commModemStatus;
@@ -38,7 +39,7 @@ namespace Serial {
         SetCommMask(stream, EV_RXCHAR);
         WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
 
-        cpy = overlappedRXEvent;
+        event = overlappedRXEvent.hEvent;
         //suspend execution till EV_RXCHAR will fire
         switch (WaitForSingleObject(overlappedRXEvent.hEvent, timeout == 0 ? INFINITE : timeout)) {
             case WAIT_OBJECT_0:

@@ -46,10 +46,9 @@ public:
 
 void menu(SerialLib &a) {
     while (true) {
-        unsigned char info[] = {'a', 'b', 'o', 'b', 'a', 's', 'u', 'c', 'k', 'm', 'y', 'd', 'i', 'c', 'k', 'p',
-                                'l',
-                                'e', 'a', 's', 'e'};
         int option = 0;
+        char str[200];
+        scanf("%[^\n]s",str);
         cout << "Enter the option which should be processed:\n"
                 "1.\t Ping device with message\n"
                 "2.\t Program controlled device\n" <<
@@ -61,13 +60,12 @@ void menu(SerialLib &a) {
         }
         switch (option) {
             case 1:
-                cout << a.write(info, sizeof(info)) << endl;
+                cout << a.write(str, strlen(str)) << endl;
                 break;
             case 2:
                 break;
             case 3:
                 a.stopListening();
-                cout << "stopped" << endl;
                 break;
             default:
                 cerr << "Provided not supported instruction\n" << endl;
@@ -94,7 +92,7 @@ void cb(const string &content) {
 int main() {
     vector<string> existingSerialPorts;
     scan(existingSerialPorts);
-    string res;
+
     for (auto &i: existingSerialPorts) {
         cout << i << endl;
     }

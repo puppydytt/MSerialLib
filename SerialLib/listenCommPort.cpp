@@ -11,7 +11,6 @@ namespace Serial {
     void SerialLib::spin(callBack cb) {
         string ref;
         while (true) {
-            cout << "a" << endl;
             if (!listenerRunning.load()) return;
             if (receiveData(ref, 0)) cb(const_cast<string &>(ref));
         }
@@ -21,13 +20,21 @@ namespace Serial {
      * Setting event that signals receiveData to get out from INFINITE state
      * Terminates spin() thread
      * */
+
     bool SerialLib::stopListening() {
         if (!listenerRunning.load()) {
             cerr << "Listener is not running" << endl;
             return false;
         }
-        bool signal =  SetEvent(cpy.hEvent); // add separate method for terminating the wait on the read event:)
+        bool signal = terminateReader();
         listenerRunning.store(!signal);
-        return !signal;
+        return signal;
+    }
+
+    bool SerialLib::terminateReader() {
+        {
+            if (event == nullptr) return false;
+            return SetEvent(event); // signal to the WaitForSingle object that even is signaled
+        };
     }
 }

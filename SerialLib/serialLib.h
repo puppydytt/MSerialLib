@@ -14,13 +14,10 @@ using namespace std;
 using namespace chrono;
 
 // add param namings
-typedef void(callBack)(const string&);
+typedef void(callBack)(const string &);
 
 namespace Serial {
     class SerialLib {
-
-    protected:
-        void spin(callBack);
 
     private:
         HANDLE stream;
@@ -29,7 +26,10 @@ namespace Serial {
         string iFaceName;
         thread th;
         atomic<bool> listenerRunning;
-        OVERLAPPED cpy;
+        HANDLE event;
+
+        void spin(callBack);
+
     public:
         SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr) {};
 
@@ -43,13 +43,14 @@ namespace Serial {
          * @return
          */
 
+        // don't use this along with startListening() when it's set to INFINITE mode, otherwise it will return immediately,as well as don't use it in concurrent threads. It will lead you to immediate return on one of them
         bool receiveData(string &, uint32_t);
-
-        //add serial port listener based on the recieve data function, make spining thread which shared mutexed area with signals, add logic for thread stop
 
         bool closeStream(const string &);
 
-        bool write(unsigned char *, uint64_t);
+        bool terminateReader();
+
+        bool write(const char * const, uint64_t);
 
         bool startListening(callBack);
 

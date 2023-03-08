@@ -1,7 +1,7 @@
 #include "serialLib.h"
 
 namespace Serial {
-    bool SerialLib::write(unsigned char *data, uint64_t length) {
+    bool SerialLib::write(const char * const data, uint64_t length) {
         DWORD messageLength;
         OVERLAPPED osWrite;
 
