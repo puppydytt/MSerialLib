@@ -30,7 +30,7 @@ namespace Serial {
         HANDLE eventWrite;
 
 
-        void spin(callBack);
+        void spin(callBack, uint32_t);
 
     public:
         SerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr) {};
@@ -46,7 +46,7 @@ namespace Serial {
          */
 
         // don't use this along with startListening() when it's set to INFINITE mode, otherwise it will return immediately,as well as don't use it in concurrent threads. It will lead you to immediate return on one of them
-        bool receiveData(string &, uint32_t);
+        bool receiveData(string &, uint32_t, uint32_t);
 
         bool closeStream(const string &);
 
@@ -54,7 +54,7 @@ namespace Serial {
 
         bool write(const char * const, uint64_t);
 
-        bool startListening(callBack);
+        bool startListening(callBack, uint32_t);
 
         bool stopListening();
 

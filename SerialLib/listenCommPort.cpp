@@ -1,18 +1,18 @@
 #include "serialLib.h"
 
 namespace Serial {
-    bool SerialLib::startListening(callBack cb) {
+    bool SerialLib::startListening(callBack cb, uint32_t timeout) {
         if (cb == nullptr) return false;
         atomic_init(&listenerRunning, true);
-        th = thread([this, cb] { this->spin(cb); });
+        th = thread([this, cb, timeout] { this->spin(cb, timeout); });
         return true;
     }
 
-    void SerialLib::spin(callBack cb) {
+    void SerialLib::spin(callBack cb, uint32_t timeout) {
         string ref;
         while (true) {
             if (!listenerRunning.load()) return;
-            if (receiveData(ref, 0)) cb(const_cast<string &>(ref));
+            if (receiveData(ref, 0, timeout)) cb(const_cast<string &>(ref));
         }
     }
 

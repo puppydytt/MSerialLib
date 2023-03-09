@@ -101,9 +101,9 @@ int main() {
     if (!a.openStream()) {
         cerr << "Failed to open I/O stream" << endl;
     }
-    a.setControl(115200, false, 200);
+    a.setControl(300, false, 200);
 
-    a.startListening(cb);
+    a.startListening(cb, 800);
     string res;
 
     thread th1(menu, ref(a));
