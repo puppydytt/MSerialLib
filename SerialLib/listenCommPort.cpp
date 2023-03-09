@@ -33,8 +33,8 @@ namespace Serial {
 
     bool SerialLib::terminateReader() {
         {
-            if (event == nullptr) return false;
-            return SetEvent(event); // signal to the WaitForSingle object that even is signaled
+            if (eventRead == nullptr) return false;
+            return SetEvent(eventRead); // signal to the WaitForSingle object that even is signaled
         };
     }
 }

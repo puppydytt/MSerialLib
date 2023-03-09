@@ -39,7 +39,10 @@ namespace Serial {
         SetCommMask(stream, EV_RXCHAR);
         WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
 
-        event = overlappedRXEvent.hEvent;
+        eventRead = overlappedRXEvent.hEvent;
+
+
+
         //suspend execution till EV_RXCHAR will fire
         switch (WaitForSingleObject(overlappedRXEvent.hEvent, timeout == 0 ? INFINITE : timeout)) {
             case WAIT_OBJECT_0:
@@ -48,18 +51,27 @@ namespace Serial {
                     cerr << "WaitCommEventFailed errno " << GetLastError() << endl;
                     return false;
                 }
-                //Retrieve info from comm port
-                ClearCommError(stream, nullptr, &portInfo);
-                bufferLength = portInfo.cbInQue;
+
+                //thread sync, wait for write thread to complete its own operation
+                WaitForSingleObject(eventWrite, INFINITE);
+
+                //Retrieve info from comm port (bytes in input buffer + bytes in output buffer)
+                while (true) {
+                    Sleep(10); // make modifiable timeout
+                    ClearCommError(stream, nullptr, &portInfo);
+                    bufferLength = portInfo.cbInQue;
+                    if (portInfo.cbOutQue == 0) break;
+                }
+
                 buff = new char[bufferLength]; // +1 reservation for '\0' character
-                //Read data from I/O buffer, fill osReader with event
+                //Read data from I/O buffer, fill osReader with eventRead
                 if (!ReadFile(stream, buff, bufferLength, &nRead, &overlappedReadEvent)) {
                     if (GetLastError() != ERROR_IO_PENDING)
                         cout << "Failed to read the stream errno " << GetLastError() << endl;
                 }
                 // suspend till ReadFile operation will complete its job
                 if (WaitForSingleObject(overlappedReadEvent.hEvent, 200) == WAIT_OBJECT_0) {
-                    if (!GetOverlappedResult(stream, &overlappedReadEvent, &bufferLLengthFromOverlapped, 200)) {
+                    if (!GetOverlappedResult(stream, &overlappedReadEvent, &bufferLLengthFromOverlapped, INFINITE)) {
                         cerr << "WaitCommEventFailed errno " << GetLastError() << endl;
                     } else {
                         if (nRead > 0) {

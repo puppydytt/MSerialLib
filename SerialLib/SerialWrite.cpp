@@ -4,7 +4,7 @@ namespace Serial {
     bool SerialLib::write(const char * const data, uint64_t length) {
         DWORD messageLength;
         OVERLAPPED osWrite;
-
+        COMSTAT portInfo;
         // initializing overlapped structure
         memset(&osWrite, 0, sizeof(osWrite));
 
@@ -28,7 +28,8 @@ namespace Serial {
         }
 
         //thread suspension waiting for WriteFile overlapped event to finish its job
-        switch (WaitForSingleObject(osWrite.hEvent, 200)) {
+        eventWrite = osWrite.hEvent;
+        switch (WaitForSingleObject(osWrite.hEvent, INFINITE)) {
             case WAIT_OBJECT_0:
                 //Gathering info on completed event
                 if(!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
@@ -40,7 +41,7 @@ namespace Serial {
                 cerr << "Write operation on I/O failed: Time out" << endl;
                 return false;
             default:
-                break;
+                return false;
         }
         return length == messageLength;
     }

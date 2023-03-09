@@ -26,7 +26,9 @@ namespace Serial {
         string iFaceName;
         thread th;
         atomic<bool> listenerRunning;
-        HANDLE event;
+        HANDLE eventRead;
+        HANDLE eventWrite;
+
 
         void spin(callBack);
 
