@@ -3,7 +3,7 @@ project(TestForSerialLib)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_subdirectory(SerialLib)
+add_subdirectory(MSerialLib)
 
 add_executable(wtf main.cpp)
-target_link_libraries(wtf MySerial)
+target_link_libraries(wtf MSerialLib)

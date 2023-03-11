@@ -1,7 +1,7 @@
-#include "serialLib.h"
+#include "MSerialLib.h"
 
-namespace Serial {
-    bool SerialLib::receiveData(string &dst, uint32_t timeout, uint32_t fillBufferTimeout) {
+namespace MSerial {
+    bool MSerialLib::receiveData(string &dst, uint32_t timeout, uint32_t fillBufferTimeout) {
         DWORD commModemStatus;
         char *buff(nullptr);
         DWORD bufferLength(1); // +1 reservation for '\0' character
@@ -96,6 +96,7 @@ namespace Serial {
                     ResetEvent(overlappedRXEvent.hEvent);
                     WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
                     WaitForSingleObject(overlappedRXEvent.hEvent, 0);
+                    eventRead = nullptr;
                     return true;
                 }
                 break;

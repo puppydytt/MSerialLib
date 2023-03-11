@@ -1,50 +1,10 @@
 #include <iostream>
-#include "SerialLib/serialLib.h"
-
+#include "MSerialLib/MSerialLib.h"
 
 using namespace std;
-using namespace Serial;
+using namespace MSerial;
 
-// a = ForwardCommunication({commParameters}) #  apply structure to port
-// a.sendMessage(msg,msg_size) # send message
-// a.listenForNewMessages(listener) # run the thread receiving component
-// a.detectAvailableDevices()
-// a.forwardClose() depreciates connection
-
-
-/*
-class Atmega328P : private SerialLib {
-public:
-    Atmega328P() : SerialLib() {};
-
-    void SendInstruction() {
-        unsigned char info[] = {'a', 'b', 'o', 'b', 'a', 's', 'u', 'c', 'k', 'm', 'y', 'd', 'i', 'c', 'k', 'p', 'l',
-                                'e', 'a', 's', 'e'};
-        serialStreamDataWrite(info, sizeof(info));
-    }
-
-    void EnableProgramming() {
-        unsigned char info[4] = {'s', 'u', 'c', 'k'};
-        scan();
-        if (existingSerialPorts.empty()) cerr << "No serial ports were found" << endl;
-        else {
-            for (const auto &port: existingSerialPorts) {
-                if (openStream(port)) {
-                    setControl(CBR_115200, NOPARITY, 1);
-                    serialStreamDataWrite(info, sizeof(info));
-                    thread abc([this] { this->serialStreamReceiveData(); });
-                    abc.join();
-                } else cerr << "Seems like PORT is occupied by other process " << port << endl;
-            }
-        }
-    }
-
-};
-
-
-*/
-
-void menu(SerialLib &a) {
+void menu(MSerialLib &a) {
     int option = 0;
     char str[5000];
     scanf("%[^\n]s", str);
@@ -52,7 +12,8 @@ void menu(SerialLib &a) {
         cout << "Enter the option which should be processed:\n"
                 "1.\t Ping device with message\n"
                 "2.\t Program controlled device\n" <<
-             "3.\t Kill the thread\n";
+             "3.\t Stop listener\n" <<
+             "4.\t Quit program\n";
         if (!(cin >> option)) {
             cin.clear();
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -60,13 +21,15 @@ void menu(SerialLib &a) {
         }
         switch (option) {
             case 1:
-                cout << a.write(str, strlen(str)) << endl;
+                cout << a.writeData(str, strlen(str)) << endl;
                 break;
             case 2:
                 break;
             case 3:
                 a.stopListening();
                 break;
+            case 4:
+                return;
             default:
                 cerr << "Provided not supported instruction\n" << endl;
                 continue;
@@ -83,9 +46,7 @@ void scan(vector<string> &a) {
     }
 }
 
-// documenting the library, describe why synchronous-overlapped was selected instead of asynchronous
-
-void cb(const string &content) {
+void callback(const string &content) {
     cout << "msg from call back: " << content << endl;
 }
 
@@ -96,18 +57,22 @@ int main() {
     for (auto &i: existingSerialPorts) {
         cout << i << endl;
     }
-    SerialLib a(existingSerialPorts[0], 9600);
+    MSerialLib a(existingSerialPorts[0], 9600);
 
     if (!a.openStream()) {
         cerr << "Failed to open I/O stream" << endl;
     }
-    a.setControl(300, false);
+    a.setControl(300, false, 1, 8);
 
-    a.startListening(cb, 1300);
-    string res;
- 
+    a.startListening(callback, 1300);
     thread th1(menu, ref(a));
+    string res;
+//    a.receiveData(res, infinity, 1300);
+//    cout << res << endl;
+//    res.clear();
+//    a.receiveData(res, infinity, 1300);
+//    cout << res << endl;
     th1.join();
-    return 0;
+    return a.closeStream();
 }
 

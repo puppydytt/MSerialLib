@@ -1,7 +1,7 @@
-#include "serialLib.h"
+#include "MSerialLib.h"
 
-namespace Serial {
-    bool SerialLib::write(const char *const data, uint64_t length) {
+namespace MSerial {
+    bool MSerialLib::writeData(const char * const data, uint64_t length) {
         DWORD messageLength;
         OVERLAPPED osWrite;
         // initializing overlapped structure
@@ -42,6 +42,7 @@ namespace Serial {
             default:
                 return false;
         }
+        eventWrite = nullptr;
         return length == messageLength;
     }
 }

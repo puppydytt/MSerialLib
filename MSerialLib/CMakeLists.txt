@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.22)
 set(CMAKE_CXX_STANDARD 23)
 
 set(src
-        driver.cpp
+        MSerialLib.cpp
         ReceiveData.cpp
         SerialWrite.cpp
         listenCommPort.cpp
         )
 
-add_library(MySerial STATIC ${src})
+add_library(MSerialLib STATIC ${src})
 
-target_include_directories(MySerial PUBLIC serialLib.h)
+target_include_directories(MSerialLib PUBLIC MSerialLib.h)
 
