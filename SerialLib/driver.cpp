@@ -23,7 +23,7 @@ namespace Serial {
         return false;
     }
 
-    void SerialLib::setControl(DWORD baud, BYTE parity, DWORD timeout) {
+    void SerialLib::setControl(DWORD baud, BYTE parity) {
         if (!stream) return;
         GetCommState(stream, &controlBlock);
         controlBlock.BaudRate = baud;
@@ -31,11 +31,10 @@ namespace Serial {
         controlBlock.StopBits = 1;
         controlBlock.ByteSize = 8;
         SetCommState(stream, &controlBlock);
-
-        GetCommTimeouts(stream, &timeouts);
+        /*GetCommTimeouts(stream, &timeouts);
         timeouts.ReadIntervalTimeout = timeout;
         timeouts.ReadTotalTimeoutMultiplier = 0;
         timeouts.ReadTotalTimeoutConstant = 0;
-        SetCommTimeouts(stream, &timeouts);
+        SetCommTimeouts(stream, &timeouts);*/
     }
 }

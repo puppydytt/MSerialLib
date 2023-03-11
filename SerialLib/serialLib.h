@@ -37,7 +37,7 @@ namespace Serial {
 
         bool openStream();
 
-        void setControl(DWORD, BYTE, DWORD);
+        void setControl(DWORD, BYTE);
 
         /**
          *

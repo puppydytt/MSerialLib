@@ -13,6 +13,7 @@ namespace Serial {
         while (true) {
             if (!listenerRunning.load()) return;
             if (receiveData(ref, 0, timeout)) cb(const_cast<string &>(ref));
+            ref.clear();
         }
     }
 

@@ -1,10 +1,9 @@
 #include "serialLib.h"
 
 namespace Serial {
-    bool SerialLib::write(const char * const data, uint64_t length) {
+    bool SerialLib::write(const char *const data, uint64_t length) {
         DWORD messageLength;
         OVERLAPPED osWrite;
-        COMSTAT portInfo;
         // initializing overlapped structure
         memset(&osWrite, 0, sizeof(osWrite));
 
@@ -32,7 +31,7 @@ namespace Serial {
         switch (WaitForSingleObject(osWrite.hEvent, INFINITE)) {
             case WAIT_OBJECT_0:
                 //Gathering info on completed event
-                if(!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
+                if (!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
                     cerr << "Failed while retrieving overlapped results" << endl;
                     return false;
                 }

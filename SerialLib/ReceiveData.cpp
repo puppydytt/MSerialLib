@@ -1,11 +1,10 @@
 #include "serialLib.h"
 
-//make normal reception
 namespace Serial {
     bool SerialLib::receiveData(string &dst, uint32_t timeout, uint32_t fillBufferTimeout) {
         DWORD commModemStatus;
         char *buff(nullptr);
-        DWORD bufferLength(0);
+        DWORD bufferLength(1); // +1 reservation for '\0' character
         DWORD bufferLLengthFromOverlapped(0);
         //separate overlapped structure for operation. See Remarks there https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-overlapped
         OVERLAPPED overlappedRXEvent = {0};
@@ -49,21 +48,26 @@ namespace Serial {
                     cerr << "WaitCommEventFailed errno " << GetLastError() << endl;
                     return false;
                 }
-
-                //thread sync, wait for write thread to complete its own operation
-                WaitForSingleObject(eventWrite, INFINITE);
-
                 //Retrieve info from comm port (bytes in input buffer + bytes in output buffer)
                 while (true) {
+                    //thread sync, wait for write thread to complete its own operation
+                    WaitForSingleObject(eventWrite, INFINITE);
                     ClearCommError(stream, nullptr, &portInfo);
                     bufferLength += portInfo.cbInQue;
-                    if (portInfo.cbInQue == 0) break; // read all message from input buffer
-                    buff = static_cast<char *>(malloc(bufferLength)); // +1 reservation for '\0' character TODO realloc?
+                    char *tmpBuff = static_cast<char *>(realloc(buff,
+                                                                bufferLength));
+                    if (!tmpBuff) {
+                        cerr << "Failed to reallocate buff: ReceiveData" << endl;
+                        return false;
+                    }
+                    buff = tmpBuff;
+
                     //Read data from I/O buffer, fill osReader with eventRead
-                    if (!ReadFile(stream, buff /*offset*/, portInfo.cbInQue, &nRead, //toDo readToBuffOfset?
+                    if (!ReadFile(stream, &buff[offset] /*offset*/, portInfo.cbInQue, &nRead,
                                   &overlappedReadEvent)) {
-                        if (GetLastError() != ERROR_IO_PENDING)
+                        if (GetLastError() != ERROR_IO_PENDING) {
                             cout << "Failed to read the stream errno " << GetLastError() << endl;
+                        }
                     }
                     // suspend till ReadFile operation will complete its job
                     if (WaitForSingleObject(overlappedReadEvent.hEvent, INFINITE) == WAIT_OBJECT_0) {
@@ -71,17 +75,29 @@ namespace Serial {
                                                  INFINITE)) {
                             cerr << "WaitCommEventFailed errno " << GetLastError() << endl;
                         } else {
-                            cout << buff << endl; //OK
+                            //OK ReadFile done without any errors
+                            if (nRead == 0) {
+                                // all data was received successfully
+                                break;
+                            }
                         }
-
                     } else {
                         cerr << "Failed to read I/O buffer" << endl;
                         return false;
                     }
-                    offset += bufferLength;
+                    offset += portInfo.cbInQue;
                     if (fillBufferTimeout > 0) Sleep(fillBufferTimeout);
                 }
-                if (bufferLength != 0) buff[bufferLength] = '\0';
+                --bufferLength; // compensate '/0' character on buffer
+                if (bufferLength != 0) {
+                    buff[bufferLength] = '\0';
+                    dst = buff;
+                    //required call, prevents call of WaitForSingle object with empty buffer
+                    ResetEvent(overlappedRXEvent.hEvent);
+                    WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
+                    WaitForSingleObject(overlappedRXEvent.hEvent, 0);
+                    return true;
+                }
                 break;
             case WAIT_TIMEOUT:
                 //process background info
@@ -90,8 +106,6 @@ namespace Serial {
                 cerr << "Error occurred in comm event" << endl;
                 return false;
         }
-        //dst = buff;
-        cout << bufferLength << endl;
-        return true;
+        return false;
     }
 }

@@ -45,10 +45,10 @@ public:
 */
 
 void menu(SerialLib &a) {
+    int option = 0;
+    char str[5000];
+    scanf("%[^\n]s", str);
     while (true) {
-        int option = 0;
-        char str[5000];
-        scanf("%[^\n]s", str);
         cout << "Enter the option which should be processed:\n"
                 "1.\t Ping device with message\n"
                 "2.\t Program controlled device\n" <<
@@ -101,20 +101,13 @@ int main() {
     if (!a.openStream()) {
         cerr << "Failed to open I/O stream" << endl;
     }
-    a.setControl(300, false, 200);
+    a.setControl(300, false);
 
-    a.startListening(cb, 800);
+    a.startListening(cb, 1300);
     string res;
-
+ 
     thread th1(menu, ref(a));
-//    a.receiveData(res, 0);
-   // cout << "msg: " << res << endl;
     th1.join();
-
-
-    //thread th1(menu, ref(c));
-    //c.EnableProgramming();
-
     return 0;
 }
 
