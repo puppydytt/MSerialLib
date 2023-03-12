@@ -57,7 +57,7 @@ int main() {
     for (auto &i: existingSerialPorts) {
         cout << i << endl;
     }
-    MSerialLib a(existingSerialPorts[0], 9600);
+    MSerialLib a(existingSerialPorts[0]);
 
     if (!a.openStream()) {
         cerr << "Failed to open I/O stream" << endl;

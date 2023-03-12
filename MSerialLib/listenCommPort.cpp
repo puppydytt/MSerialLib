@@ -33,9 +33,7 @@ namespace MSerial {
     }
 
     bool MSerialLib::terminateReader() {
-        {
             if (eventRead == nullptr) return false;
             return SetEvent(eventRead); // signal to the WaitForSingle object that even is signaled
-        };
     }
 }

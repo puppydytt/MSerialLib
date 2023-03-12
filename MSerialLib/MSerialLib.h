@@ -20,7 +20,7 @@ namespace MSerial {
 
     private:
         /**pointer to serial port*/
-        HANDLE stream;
+        HANDLE stream{};
         /**configuration of serialPort */
         _DCB controlBlock{};
         /**serial port name*/
@@ -28,16 +28,17 @@ namespace MSerial {
         /**spin thread*/
         thread th;
         /**atomic bool for handling stop signal of spin thread*/
-        atomic<bool> listenerRunning;
+        atomic<bool> listenerRunning{};
         /**pointer to read thread*/
-        HANDLE eventRead;
+        HANDLE eventRead{};
         /**pointer to write thread*/
-        HANDLE eventWrite;
+        HANDLE eventWrite{};
+
         /**part of serial port listener*/
         void spin(CallBack cb, uint32_t timeout);
 
     public:
-        MSerialLib(string &iFaceName, int baudRate) : iFaceName(iFaceName), stream(nullptr) {};
+        explicit MSerialLib(string &iFaceName) : iFaceName(iFaceName) {};
 
         /**
          * @name openStream()
