@@ -1,6 +1,18 @@
-cmake_minimum_required(VERSION 3.22)
-project(programmerInterface)
+cmake_minimum_required(VERSION 3.21.2)
+
+project(TestForSerialLib)
+
+if (NOT CMAKE_C_COMPILER)
+    message(FATAL_ERROR "C compiler not found")
+endif ()
+
+if (NOT CMAKE_CXX_COMPILER)
+    message(FATAL_ERROR "C++ compiler not found")
+endif ()
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(programmerInterface main.cpp SerialLib/driver.cpp SerialLib/ReceiveData.cpp SerialLib/SerialWrite.cpp SerialLib/listenCommPort.cpp)
+add_subdirectory(MSerialLib)
+
+add_executable(SerialMonitor UsageExampleSerialMonitor.cpp)
+target_link_libraries(SerialMonitor MSerialLib)

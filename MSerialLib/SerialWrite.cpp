@@ -1,10 +1,9 @@
-#include "serialLib.h"
+#include "MSerialLib.h"
 
-namespace Serial {
-    bool SerialLib::write(unsigned char *data, uint64_t length) {
+namespace MSerial {
+    bool MSerialLib::writeData(const char * const data, uint64_t length) {
         DWORD messageLength;
         OVERLAPPED osWrite;
-
         // initializing overlapped structure
         memset(&osWrite, 0, sizeof(osWrite));
 
@@ -28,10 +27,11 @@ namespace Serial {
         }
 
         //thread suspension waiting for WriteFile overlapped event to finish its job
-        switch (WaitForSingleObject(osWrite.hEvent, 200)) {
+        eventWrite = osWrite.hEvent;
+        switch (WaitForSingleObject(osWrite.hEvent, INFINITE)) {
             case WAIT_OBJECT_0:
                 //Gathering info on completed event
-                if(!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
+                if (!GetOverlappedResult(stream, &osWrite, &messageLength, false)) {
                     cerr << "Failed while retrieving overlapped results" << endl;
                     return false;
                 }
@@ -40,8 +40,9 @@ namespace Serial {
                 cerr << "Write operation on I/O failed: Time out" << endl;
                 return false;
             default:
-                break;
+                return false;
         }
+        eventWrite = nullptr;
         return length == messageLength;
     }
 }
