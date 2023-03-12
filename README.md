@@ -49,7 +49,7 @@ cd "./release-build" && cmake --build ./ --target SerialMonitor
 ```
 
 ## Usage
-For more detailed example of using MSerialLib  checkout ```UsangeExampleSerialMontor.cpp``` 
+For more detailed example of using MSerialLib  checkout ```UsageExampleSerialMontor.cpp``` 
 ### Opens and sends data to the port
 
 ```c++
