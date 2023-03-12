@@ -1,1 +1,2 @@
-cmake-build-debug
+debug-build
+release-build
