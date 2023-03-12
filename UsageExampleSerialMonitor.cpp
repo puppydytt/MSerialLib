@@ -6,14 +6,14 @@ using namespace MSerial;
 
 void menu(MSerialLib &a) {
     int option = 0;
+    cout << "enter message" << endl;
     char str[5000];
     scanf("%[^\n]s", str);
     while (true) {
         cout << "Enter the option which should be processed:\n"
                 "1.\t Ping device with message\n"
-                "2.\t Program controlled device\n" <<
-             "3.\t Stop listener\n" <<
-             "4.\t Quit program\n";
+                "2.\t Stop listener\n" <<
+             "3.\t Quit program\n";
         if (!(cin >> option)) {
             cin.clear();
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -24,11 +24,9 @@ void menu(MSerialLib &a) {
                 cout << a.writeData(str, strlen(str)) << endl;
                 break;
             case 2:
+                a.stopListening(); // stop monitor
                 break;
             case 3:
-                a.stopListening();
-                break;
-            case 4:
                 return;
             default:
                 cerr << "Provided not supported instruction\n" << endl;
@@ -46,33 +44,26 @@ void scan(vector<string> &a) {
     }
 }
 
-void callback(const string &content) {
-    cout << "msg from call back: " << content << endl;
+void callback(const string &content) { //called when data is retrieved from I/O port
+    cout << content << endl;
 }
 
 int main() {
     vector<string> existingSerialPorts;
-    scan(existingSerialPorts);
-
+    scan(existingSerialPorts); // scan for available ports
     for (auto &i: existingSerialPorts) {
         cout << i << endl;
     }
-    MSerialLib a(existingSerialPorts[0]);
 
-    if (!a.openStream()) {
+    MSerialLib a(existingSerialPorts[0]); // opens the first available serial port
+
+    if (!a.openStream()) { // port ok?
         cerr << "Failed to open I/O stream" << endl;
     }
-    a.setControl(300, false, 1, 8);
 
-    a.startListening(callback, 1300);
-    thread th1(menu, ref(a));
-    string res;
-//    a.receiveData(res, infinity, 1300);
-//    cout << res << endl;
-//    res.clear();
-//    a.receiveData(res, infinity, 1300);
-//    cout << res << endl;
+    a.setControl(115200, false, 1, 8);
+    a.startListening(callback, 10);
+    thread th1(menu, ref(a)); // run concurent thread with writeData in it
     th1.join();
     return a.closeStream();
 }
-
