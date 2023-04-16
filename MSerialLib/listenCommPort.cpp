@@ -9,11 +9,13 @@ namespace MSerial {
     }
 
     void MSerialLib::spin(CallBack callback, uint32_t timeout) {
-        string ref;
+        char * buff;
         while (true) {
             if (!listenerRunning.load()) return;
-            if (receiveData(ref, infinity, timeout)) callback(const_cast<string &>(ref));
-            ref.clear();
+            if (receiveData(&buff, infinity, timeout)) {
+                callback(buff);
+            }
+            memset(buff, 0, strlen(buff));
         }
     }
 
@@ -33,7 +35,7 @@ namespace MSerial {
     }
 
     bool MSerialLib::terminateReader() {
-            if (eventRead == nullptr) return false;
-            return SetEvent(eventRead); // signal to the WaitForSingle object that even is signaled
+        if (eventRead == nullptr) return false;
+        return SetEvent(eventRead); // signal to the WaitForSingle object that even is signaled
     }
 }

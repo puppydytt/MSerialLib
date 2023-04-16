@@ -44,7 +44,7 @@ void scan(vector<string> &a) {
     }
 }
 
-void callback(const string &content) { //called when data is retrieved from I/O port
+void callback(char * content) { //called when data is retrieved from I/O port
     cout << content << endl;
 }
 

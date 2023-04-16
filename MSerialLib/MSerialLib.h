@@ -13,7 +13,7 @@
 using namespace std;
 using namespace chrono;
 
-typedef void(CallBack)(const string &);
+typedef void(CallBack)(char *);
 
 namespace MSerial {
     class MSerialLib {
@@ -54,7 +54,7 @@ namespace MSerial {
          * @name receiveData()
          * @brief
          * If called suspends current thread in which it was called and retrieves all characters which came to input buffer
-         * @param msg string where value from retrieved content will be place
+         * @param buff pointer to (char *) where retrieved content will be placed
          * @param timeout (ms) time for which function listens if there is upcoming content on serial port, the value passed should be is ms(milliseconds)
          * but function also supports macro 'infinity' which will wait until action happens
          * @param readBufferTimeout (ms) timeout which will be applied between read intervals(depending on your communication), when '0' is passed timeout is disabled\n
@@ -69,7 +69,7 @@ namespace MSerial {
          * false - failed
          **/
 
-        bool receiveData(string &msg, uint32_t timeout, uint32_t readBufferTimeout);
+        bool receiveData(char **, uint32_t timeout, uint32_t readBufferTimeout);
 
         /**
         * @name writeData()

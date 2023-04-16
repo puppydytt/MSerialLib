@@ -97,9 +97,9 @@ int main(int argc, char** argv) {
     }
 
     serial.setControl(300, false, 1, 8); // 1 - baudRate, 2 - checkForParity, 3 - stopBits, 4 - byteSize(usually 8)
-    string rcv;
+    char * rcv;
     //receives all data from serial port
-    serial.receiveData(rcv, infinity, 1300); //1 - reference to buff where info will be stored, 2 - timeout(ms) how for receive event, 3 - read interval timeout
+    serial.receiveData(&rcv, infinity, 1300); //1 - reference to buff where info will be stored, 2 - timeout(ms) how for receive event, 3 - read interval timeout
     //suspended till data will arrive
     cout << rcv << endl;
     serial.closeStream();
@@ -139,7 +139,7 @@ using namespace std;
 using namespace MSerial;
 
 // function which will be called when data is retrieved from I/O buffer
-void callback(const string &msg) {
+void callback(char * msg) {
     cout << msg << endl;
 }
 

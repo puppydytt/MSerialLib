@@ -1,7 +1,7 @@
 #include "MSerialLib.h"
 
 namespace MSerial {
-    bool MSerialLib::receiveData(string &dst, uint32_t timeout, uint32_t fillBufferTimeout) {
+    bool MSerialLib::receiveData(char ** dst , uint32_t timeout, uint32_t fillBufferTimeout) {
         DWORD commModemStatus;
         char *buff(nullptr);
         DWORD bufferLength(1); // +1 reservation for '\0' character
@@ -91,7 +91,7 @@ namespace MSerial {
                 --bufferLength; // compensate '/0' character on buffer
                 if (bufferLength != 0) {
                     buff[bufferLength] = '\0';
-                    dst = buff;
+                    *dst = buff;
                     //required call, prevents call of WaitForSingle object with empty buffer
                     ResetEvent(overlappedRXEvent.hEvent);
                     WaitCommEvent(stream, &commModemStatus, &overlappedRXEvent);
