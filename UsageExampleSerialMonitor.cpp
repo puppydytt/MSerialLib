@@ -57,7 +57,7 @@ int main() {
 
     MSerialLib a(existingSerialPorts[0]); // opens the first available serial port
 
-    if (!a.openStream()) { // port ok?
+    if (!a.openStream(true)) { // port ok? + overlapped enabled
         cerr << "Failed to open I/O stream" << endl;
     }
 

@@ -43,12 +43,13 @@ namespace MSerial {
         /**
          * @name openStream()
          * @brief Creates hand to serial port
+         * @param bool state - if true overlapped enabled, false disabled
          * @returns
          * true - if serial port was opened
          * false - failure(port is busy?)
          */
 
-        bool openStream();
+        bool openStream(bool);
 
         /**
          * @name receiveData()
@@ -70,6 +71,29 @@ namespace MSerial {
          **/
 
         bool receiveData(char **, uint32_t timeout, uint32_t readBufferTimeout);
+
+
+
+        /**
+          * @name simpleRead()
+          * @brief
+          * Reading everything from serial buffer NON OVERLAPPED
+          * @param char ** dst, pointer to char * where the read buffer will be assigned
+          * @param int n, how many characters should be read from the buffer
+          * @return true if succeeds false if fails
+          */
+         bool simpleRead(char **, uint32_t);
+
+        /**
+         * @name simpleWrite()
+         * @brief
+         * Writing to serial port from buffer NON OVERLAPPED
+         * @param char * buff, pointer to buffer
+         * @param int n, how many bytes should be written
+         * @return true if succeeds false if fails
+         */
+
+        uint32_t simpleWrite(char *, uint32_t);
 
         /**
         * @name writeData()

@@ -1,6 +1,6 @@
 # MSerialLib
 
-MSerialLib is a library written in C++ for communicating over serial interface
+MSerialLib is a library written in C++ for communicating over serial interface for overlapped and non-overlapped operations
 
 ## Building the application with MSerialLib
 
@@ -62,7 +62,7 @@ using namespace MSerial;
 int main(int argc, char** argv){
     string port = "COM4"; // name of the serial interface
     auto serial = MSerialLib(port);
-    if (!serial.openStream()) { //open stream
+    if (!serial.openStream(true)) { //open stream to use overlapped provide true
         cerr << "Failed to open I/O stream" << endl;
     }
 
@@ -92,7 +92,7 @@ using namespace MSerial;
 int main(int argc, char** argv) {
     string port = "COM4";
     auto serial = MSerialLib(port);
-    if (!serial.openStream()) { //open stream
+    if (!serial.openStream(true)) { //open stream overlapped io 
         cerr << "Failed to open I/O stream" << endl;
     }
 
@@ -146,7 +146,7 @@ void callback(char * msg) {
 int main(int argc, char** argv) {
     string port = "COM4";
     auto serial = MSerialLib(port);
-    if (!serial.openStream()) { //open stream
+    if (!serial.openStream(true)) { //open stream
         cerr << "Failed to open I/O stream" << endl;
     }
 
@@ -166,7 +166,45 @@ To stop the monitor in other thread use
 serial.stopListening()
 ```
 
+## Non-overlapped comm 
+In contrary to overlapped operations can't be executed simultaneously perhaps read over write operations and vice versa which was\
+described in serial monitor example. Here you can synchronously call write and after write will finish it's operation the read will be called or
+whatever *any other operation which is going after write or read will be suspended till this operations will end it's executions* 
+#### Note: when overlapped coom disabled use only ```simpleRead(), simpleWrite()``` 
+### Read/write example
 
+```c++
+#include <iostream>
+#include "MSerialLib/MSerialLib.h"
+
+using namespace std;
+using namespace MSerial;
+
+int main(int argc, char** argv) {
+    string port = "COM4";
+    auto serial = MSerialLib(port);
+    if (!serial.openStream(false)) { //open stream non-overlapped
+        cerr << "Failed to open I/O stream" << endl;
+    }
+
+    serial.setControl(300, false, 1, 8); // 1 - baudRate, 2 - checkForParity, 3 - stopBits, 4 - byteSize(usually 8)
+    
+    string out = "some test example";
+    
+    serial.simpleWrite(out.c_str(), out.size()){ //send string of determined length
+        
+    } 
+    char * buff = nullptr; 
+    if(serial.simpleRead(&buff, 4)) {
+        
+        //read successfully
+    }
+    
+    
+    return 0;
+}
+
+```
 
 
 ## Contributing

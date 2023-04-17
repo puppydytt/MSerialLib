@@ -7,7 +7,7 @@ set(src
         ReceiveData.cpp
         SerialWrite.cpp
         listenCommPort.cpp
-        )
+        NonOverlappedComm/MSerialReadSimple.cpp NonOverlappedComm/MSerialWriteSimple.cpp)
 
 add_library(MSerialLib STATIC ${src})
 
